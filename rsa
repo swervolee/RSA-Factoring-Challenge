@@ -1,45 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-check_factor() {
-    local result
-    local num1
-    local num2
-    local numcp
+# Function to calculate the product of factors
+calculate_product() {
+    if [ $# -ne 3 ]; then
+        local input_args=("$@")
+        local iteration_count=0
+        local product_result=1
 
-    if [ $# -ne 1 ]; then
-        args=("$@")
-        count=0
-        num2=1
-
-        for a in "${args[@]}"; do
-            if [ $count -gt 1 ]; then
-                num2=$(echo "$a * $num2" | bc)
+        for arg in "${input_args[@]}"; do
+            if [ $iteration_count -gt 1 ]; then
+                product_result=$(echo "$arg * $product_result" | bc)
             fi
-            count=$((count + 1))
+            iteration_count=$((iteration_count + 1))
         done
     else
-        num2=$1
+        local product_result="$3"
     fi
 
-    num1=$2
-    first=$(echo "$1" | tr ':' '=')
-    num=$(echo "$num2 > $num1" | bc)
+    local first_num="$2"
+    local second_num=$(echo "$1" | tr ':' '=')
 
-    if ((num == 1)); then
-        numcp=$num1
-        num1=$num2
-        num2=$numcp
+    local comparison_result=$(echo "if ($product_result > $first_num) 1 else 0" | bc)
+
+    if ((comparison_result == 1)); then
+        local temp_num="$first_num"
+        first_num="$product_result"
+        product_result="$temp_num"
     fi
 
-    echo "$first=$num1*$num2"
+    echo "$second_num$first_num*$product_result"
 }
 
 if [ $# -ne 1 ]; then
     echo 'Usage: rsa <file>'
     exit 1
 else
-    while read -r i; do
-        result=$(factor "$i")
-        check_factor $result
+    while read input_line; do
+        result=$(factor "$input_line")
+        calculate_product $result
     done < "$1"
 fi

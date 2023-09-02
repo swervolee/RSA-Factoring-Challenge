@@ -2,15 +2,18 @@
 
 # Function to calculate the product of factors
 calculate_product() {
-    local product_result=1
+    if [ $# -ne 3 ]; then
+	return
+    else
+        local product_result="$3"
+    fi
+
     local first_num="$2"
     local second_num=$(echo "$1" | tr ':' '=')
 
-    for arg in "${@:3}"; do
-        product_result=$((product_result * arg))
-    done
+    local comparison_result=$(echo "if ($product_result > $first_num) 1 else 0" | bc)
 
-    if ((product_result > first_num)); then
+    if ((comparison_result == 1)); then
         local temp_num="$first_num"
         first_num="$product_result"
         product_result="$temp_num"
@@ -23,8 +26,8 @@ if [ $# -ne 1 ]; then
     echo 'Usage: rsa <file>'
     exit 1
 else
-    while read -r input_line; do
-        result=($(factor "$input_line"))
-        calculate_product "${result[@]}"
+    while read file_line; do
+        result=$(factor "$file_line")
+        calculate_product $result
     done < "$1"
 fi

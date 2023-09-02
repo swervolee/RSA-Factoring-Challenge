@@ -35,8 +35,8 @@ if [ $# -ne 1 ]; then
     echo 'Usage: rsa <file>'
     exit 1
 else
-    while read input_line; do
-        result=$(factor "$input_line")
+    while read file_line; do
+        result=$(factor "$file_line")
         calculate_product $result
     done < "$1"
 fi
